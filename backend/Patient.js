@@ -9,6 +9,7 @@ const patientSchema = new mongoose.Schema({
     categories: Array,
     currentCategory: Array,
     questions: Array,
+    socketId: String
 }, { timestamps: true });
 
 const Patient = mongoose.model("patients", patientSchema);

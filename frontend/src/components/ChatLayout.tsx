@@ -5,7 +5,11 @@ import ChatMessages from "./ChatMessages";
 import type { Message } from "../types";
 import { getSocket } from "../socket";
 
-const ChatLayout = () => {
+interface ChatLayoutProps {
+	onConversationEnd: () => void; // new prop
+}
+
+const ChatLayout = ({ onConversationEnd }: ChatLayoutProps) => {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [typing, setTyping] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -20,19 +24,26 @@ const ChatLayout = () => {
 			setMessages(prev => [...prev, { sender: "assistant", text: "Doctor has been notified!" }]);
 		const handleAppointment = (data: { link: string }) =>
 			setMessages(prev => [...prev, { sender: "assistant", text: `Appointment scheduled! Check: ${data.link}` }]);
+		const handleConversationEnded = (msg: string) => {
+			setMessages(prev => [...prev, { sender: "assistant", text: msg }]);
+			// call App to go back to landing page after short delay
+			setTimeout(() => onConversationEnd(), 10000);
+		};
 
 		socket.on("assistantMessage", handleAssistant);
 		socket.on("typing", handleTyping);
 		socket.on("appointmentNotified", handleNotification);
 		socket.on("appointmentScheduled", handleAppointment);
+		socket.on("conversationEnded", handleConversationEnded);
 
 		return () => {
 			socket.off("assistantMessage", handleAssistant);
 			socket.off("typing", handleTyping);
 			socket.off("appointmentNotified", handleNotification);
 			socket.off("appointmentScheduled", handleAppointment);
+			socket.off("conversationEnded", handleConversationEnded);
 		};
-	}, []);
+	}, [onConversationEnd]);
 
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

@@ -12,6 +12,10 @@ const App = () => {
 		setStarted(true);
 	};
 
+	const handleConversationEnd = () => {
+		setStarted(false); // go back to landing page
+	};
+
 	return (
 		<div className="h-screen w-screen bg-gray-50 flex items-center justify-center">
 			{!started ? (
@@ -36,10 +40,10 @@ const App = () => {
 					</button>
 				</div>
 			) : (
-				<ChatLayout />
+				<ChatLayout onConversationEnd={handleConversationEnd} />
 			)}
 		</div>
 	);
 };
 
-export default App;
+export default App
